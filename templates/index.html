@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgoraIA - L'actualité mondiale décryptée par l'IA</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen">
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-serif font-bold tracking-tight text-indigo-900">AgoraIA</h1>
+                <p class="text-xs text-gray-500">Projet OpenInov — <span id="total-count">50</span> Analyses Approfondies par IA (Version Démo)</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Filtre de Langue -->
+                <div class="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
+                    <button onclick="setLang('ALL')" id="lang-ALL" class="lang-btn px-3 py-1.5 text-sm font-medium rounded-md bg-white text-gray-800 shadow-sm transition">Tous (FR+EN)</button>
+                    <button onclick="setLang('FR')" id="lang-FR" class="lang-btn px-3 py-1.5 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 transition">Français</button>
+                    <button onclick="setLang('EN')" id="lang-EN" class="lang-btn px-3 py-1.5 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 transition">Anglais</button>
+                </div>
+
+                <!-- Filtre de Tendance -->
+                <select id="bias-filter" onchange="filterArticles()" class="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="ALL">Toutes les tendances politiques</option>
+                    <option value="Gauche">Gauche</option>
+                    <option value="Centre">Centre</option>
+                    <option value="Droite">Droite</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Section Statistiques Rapides -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <span class="text-xs font-semibold text-red-600 uppercase tracking-wider">Tendance Gauche</span>
+                <p class="text-2xl font-bold text-gray-900 mt-1">17 articles</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <span class="text-xs font-semibold text-purple-600 uppercase tracking-wider">Tendance Centre</span>
+                <p class="text-2xl font-bold text-gray-900 mt-1">16 articles</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Tendance Droite</span>
+                <p class="text-2xl font-bold text-gray-900 mt-1">17 articles</p>
+            </div>
+        </div>
+
+        <!-- Titre du Flux -->
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-gray-900">📰 Flux d'actualités détaillé (<span id="visible-count">50</span> affichés)</h2>
+        </div>
+
+        <!-- Grille d'articles -->
+        <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Injecté dynamiquement par le script -->
+        </div>
+    </main>
+
+    <script>
+        // Catalogue complet des 50 articles avec résumés longs et URLs simulées
+        const articlesDataset = [
+            { id: 1, title: "Réforme budgétaire : rigidité maintenue face aux syndicats", source: "Le Figaro", lang: "FR", bias: "Droite", category: "Politique", score: 94, url: "https://www.lefigaro.fr", summary: "L'exécutif réaffirme sa position de fermeté économique en refusant tout aménagement budgétaire majeur réclamé par les partenaires sociaux. Le gouvernement justifie cette rigueur par la nécessité absolue de respecter les critères européens de déficit et de rassurer les agences de notation financières. Du côté des syndicats, on dénonce un blocage démocratique et une absence d'écoute face à l'usure sociale des travailleurs du service public." },
+            { id: 2, title: "Climate Crisis: Fossil fuels infrastructure faces new bans", source: "The Guardian", lang: "EN", bias: "Gauche", category: "Environnement", score: 89, url: "https://www.theguardian.com", summary: "A landmark legal ruling backed by grassroot environmental organizations has successfully blocked three major pipeline extension projects along the Pacific Coast. The court emphasized the long-term ecological risks over immediate economic returns. This decision sets a powerful judicial precedent, potentially complicating future heavy industrial fossil fuel investments across the territory while boosting local renewable strategies." },
+            { id: 3, title: "Pouvoir d'achat : de nouvelles aides ciblées pour la classe moyenne", source: "Le Monde", lang: "FR", bias: "Centre", category: "Économie", score: 75, url: "https://www.lemonde.fr", summary: "Afin de désamorcer les tensions liées à la hausse du coût de la vie sans pour autant aggraver le déficit public, le gouvernement introduit un chèque énergie révisé et un crédit d'impôt exceptionnel. Cette approche prudente cherche à cibler précisément les foyers qui basculent sous le seuil de précarité, tout en évitant les mesures d'aide généralisées jugées inflationnistes par la majorité des macroéconomistes du Trésor." },
+            { id: 4, title: "Taxing the Rich: A necessary step for public school funding", source: "The Jacobin", lang: "EN", bias: "Gauche", category: "Société", score: 92, url: "https://jacobin.com", summary: "An in-depth investigation highlights how decades of local corporate tax cuts have directly impoverished school districts. The author argues that a progressive capital levy targeting the top 1% of earners is not an ideological whim, but the only mathematically viable structural solution to rebuild collapsing educational infrastructure, guarantee decent salaries for teachers, and stop the fast-expanding private school divide." },
+            { id: 5, title: "Dérégulation du marché du travail : un élan nécessaire pour l'emploi", source: "Les Échos", lang: "FR", bias: "Droite", category: "Économie", score: 88, url: "https://www.lesechos.fr", summary: "Le nouveau rapport du think-tank patronal met en avant les effets bénéfiques de l'allègement des procédures de licenciement économique. Selon les analystes, cette flexibilité accrue libère la confiance des dirigeants de PME, historiquement frileux à l'idée d'embaucher en CDI. Le document préconise d'aller plus loin en simplifiant les seuils sociaux qui freinent la croissance organique des entreprises françaises." },
+            { id: 6, title: "Green New Deal: Europe accelerates solar transition targets", source: "BBC News", lang: "EN", bias: "Centre", category: "Environnement", score: 70, url: "https://www.bbc.com", summary: "The European Commission has updated its industrial energy roadmap, merging massive public subsidies with private sector green incentives. The objective is to achieve a 45% solar share in the European grid by 2030. While environmentalists applaud the ambition, heavy industries voice concerns about regional network stability and the high supply chain dependence on foreign critical raw materials." },
+            { id: 7, title: "Services publics en crise : la faillite programmée de l'austérité", source: "Libération", lang: "FR", bias: "Gauche", category: "Société", score: 91, url: "https://www.liberation.fr", summary: "Une plongée alarmante au cœur du système hospitalier et scolaire français met en lumière les conséquences concrètes du manque chronique de moyens humains. Les urgences saturent et les postes de professeurs restent vacants en masse. L'article soutient que la logique de rentabilité managériale imposée par l'État détruit le lien social et appelle à une refonte complète basée sur l'impôt redistributif." },
+            { id: 8, title: "Immigration control: New points-based system proposed", source: "The Telegraph", lang: "EN", bias: "Droite", category: "Politique", score: 86, url: "https://www.telegraph.co.uk", summary: "The newly drafted legislation aims to dramatically cut low-skilled immigration while opening accelerated tracks for global experts in high-tech, medical research, and engineering. Proponents argue this points-based system will safeguard local wage levels, relieve pressure on domestic public services, and successfully align demographic growth with real, structured economic demands." },
+            { id: 9, title: "IA et Éthique : l'Europe valide un texte de compromis", source: "La Tribune", lang: "FR", bias: "Centre", category: "Tech", score: 78, url: "https://www.latribune.fr", summary: "Après d'intenses tractations entre les eurodéputés et les lobbys de la tech, un texte de régulation modérée a été entériné. L'accord introduit des audits stricts pour les modèles d'IA générative les plus puissants, tout en exemptant de contraintes lourdes les jeunes startups du continent afin de préserver l'innovation technologique européenne face aux géants américains et asiatiques." },
+            { id: 10, title: "Corporate Tax Cuts: Fueling the next decade of innovation", source: "Wall Street Journal", lang: "EN", bias: "Droite", category: "Économie", score: 95, url: "https://www.wsj.com", summary: "Data from the latest quarterly fiscal reports reveals that recent state tax reductions have sparked an unprecedented surge in Research and Development investments. Corporations are relocating tech laboratories back to domestic ground. Financial experts suggest that tax competitiveness remains the single most efficient tool to spark long-term growth and maintain high global technological leadership." },
+            { id: 11, title: "Semaine de 4 jours : les résultats spectaculaires de l'expérimentation", source: "L'Humanité", lang: "FR", bias: "Gauche", category: "Société", score: 93, url: "https://www.humanite.fr", summary: "Le bilan final d'un essai à grande échelle dans plus de cent entreprises révèle une baisse massive de 40% des arrêts maladie et un pic de satisfaction chez les employés. L'étude démontre qu'à temps de travail réduit mais payé 100%, la réorganisation des tâches permet de maintenir, voire d'améliorer la productivité globale, brisant le vieux mythe entrepreneurial du présentéisme horaire obligatoire." },
+            { id: 12, title: "Souveraineté industrielle : l'État injecte des milliards dans les puces", source: "Le Parisien", lang: "FR", bias: "Centre", category: "Tech", score: 72, url: "https://www.leparisien.fr", summary: "Dans le cadre du plan de relance technologique, une enveloppe historique est débloquée pour co-financer la construction de méga-usines de semi-conducteurs sur le territoire national. L'objectif stratégique est double : réduire la dépendance critique envers Taïwan et approvisionner directement les constructeurs automobiles européens en pleine transition vers le tout-électrique." },
+            { id: 13, title: "The Case for Universal Basic Income in the Automation Age", source: "The Nation", lang: "EN", bias: "Gauche", category: "Économie", score: 89, url: "https://www.thenation.com", summary: "As AI algorithms begin replacing cognitive and administrative jobs at an exponential rate, economists argue that traditional safety nets are obsolete. This essay advocate for a robust Universal Basic Income funded by automated data taxes. This structural shift would decouple survival from corporate employment, giving citizens true agency over their creative and community work choices." },
+            { id: 14, title: "Sécurité : renforcement des pouvoirs de la police municipale", source: "Valeurs Actuelles", lang: "FR", bias: "Droite", category: "Politique", score: 97, url: "https://www.valeursactuelles.com", summary: "Face à l'explosion constatée de la délinquance de rue et des incivilités urbaines, une nouvelle proposition de loi prévoit d'équiper la police municipale d'armes létales et d'un accès élargi aux fichiers de sûreté nationale. Les maires de grandes agglomérations saluent une mesure régalienne essentielle pour réhabiliter l'autorité républicaine et protéger efficacement les commerces de proximité." },
+            { id: 15, title: "Global Trade: Navigating the new tariff compromise", source: "Financial Times", lang: "EN", bias: "Centre", category: "Économie", score: 74, url: "https://www.ft.com", summary: "The G20 summit concluded with a pragmatic, balanced agreement on custom tariffs, cooling down fears of an all-out international trade war. While core technological assets remain heavily protected, consumer goods will see a gradual lowering of entry barriers. Analysts view this as a sensible compromise that dampens inflation while giving domestic supply networks time to adjust." },
+            { id: 16, title: "Urgence Logement : réquisitionner les bâtiments vides", source: "Médiapart", lang: "FR", bias: "Gauche", category: "Société", score: 90, url: "https://www.mediapart.fr", summary: "Alors que le nombre de sans-abris atteint des records, une enquête révèle que des milliers de mètres carrés de bureaux parisiens appartiennent à des fonds spéculatifs immobiliers et restent volontairement inoccupés. Des associations exigent l'application immédiate de la loi de réquisition de 1945, fustigeant la frilosité du gouvernement à s'attaquer au droit de propriété spéculatif." },
+            { id: 17, title: "Privatisation des autoroutes : un bilan financier contesté", source: "Marianne", lang: "FR", bias: "Centre", category: "Économie", score: 79, url: "https://www.marianne.net", summary: "Vingt ans après la cession des réseaux autoroutiers au secteur privé, le débat fait rage concernant les superprofits des concessionnaires face à la hausse constante des tarifs pour l'usager. L'article explore les pistes de compromis : une indexation stricte des prix sur l'entretien réel des routes ou une nationalisation partielle via un modèle d'économie mixte d'intérêt public." },
+            { id: 18, title: "Defense Spending: Urgent call to modernise conventional forces", source: "Fox News", lang: "EN", bias: "Droite", category: "Politique", score: 92, url: "https://www.foxnews.com", summary: "Top military officials warn that current defense budgets are structurally insufficient to meet rising geopolitical threats. The report demands an immediate pivot toward massive ammunition manufacturing, advanced drone warfare units, and heavily upgraded naval assets. Security experts emphasize that peace can only be secured through undeniable, massive tactical deterrence capabilities." },
+            { id: 19, title: "Transition écologique : le coût caché pour les ménages modestes", source: "L'Express", lang: "FR", bias: "Droite", category: "Environnement", score: 85, url: "https://www.lexpress.fr", summary: "L'analyse met en garde contre l'impact punitif des taxes environnementales européennes sur les populations rurales dépendantes de leur véhicule thermique. Sans alternative de transport en commun viable, ces normes brutales aggravent la fracture territoriale et risquent de déclencher de violentes révoltes sociales similaires au mouvement des Gilets Jaunes, au détriment de l'écologie rationnelle." },
+            { id: 20, title: "Healthcare access: The fight for affordable prescription drugs", source: "MSNBC", lang: "EN", bias: "Gauche", category: "Société", score: 88, url: "https://www.msnbc.com", summary: "A coalition of healthcare advocates and lawmakers is successfully pushing forward a bill to place strict federal price caps on critical life-saving medications like insulin. The report exposes the aggressive lobbying tactics of major pharmaceutical corporations, who claim price limits will stall scientific research, an argument heavily countered by public university funding data." },
+            { id: 21, title: "Réforme des retraites : l'inévitable allongement de la durée de cotisation", source: "Le Point", lang: "FR", bias: "Droite", category: "Politique", score: 91, url: "https://www.lepoint.fr", summary: "Face au vieillissement inéluctable de la population française et au déséquilibre structurel des caisses de retraite, l'allongement de l'âge de départ est présenté comme la seule solution financièrement rationnelle. L'article fustige les promesses d'un retour aux 60 ans, les qualifiant d'illusions démagogiques qui mèneraient à une faillite généralisée ou à une baisse drastique du niveau des pensions." },
+            { id: 22, title: "Clean Energy Subsidies: A pragmatic approach to net-zero", source: "Bloomberg", lang: "EN", bias: "Centre", category: "Environnement", score: 73, url: "https://www.bloomberg.com", summary: "Market-driven carbon incentives are showing concrete results as major industrial corporations voluntarily phase out coal operations ahead of schedule. By focusing on flexible tax credits rather than heavy regulatory penalties, the current federal framework allows chemical and steel plants to invest smoothly in green hydrogen without suffering immediate global loss of competitiveness." },
+            { id: 23, title: "Éducation nationale : revalorisation historique du salaire des profs", source: "Le Monde", lang: "FR", bias: "Centre", category: "Société", score: 76, url: "https://www.lemonde.fr", summary: "Le ministère de l'Éducation annonce un plan de revalorisation salariale conditionné en partie à l'acceptation de missions complémentaires (remplacements à court terme, suivi individualisé). Cette mesure médiane tente de redonner de l'attractivité à un métier en crise de recrutement tout en exigeant une modernisation de la gestion du personnel, à mi-chemin entre logique comptable et égalitarisme." },
+            { id: 24, title: "Union networks strike: Total shutdown expected on Friday", source: "The Mirror", lang: "EN", bias: "Gauche", category: "Société", score: 87, url: "https://www.mirror.co.uk", summary: "National transport unions have announced a massive, synchronized strike paralyzing rail and bus networks nationwide. Workers are demanding an immediate 12% salary adjustment to keep pace with soaring energy and grocery prices. Union leaders state they will block any negotiation that includes structural layoffs or mandatory automation clauses in public transport hubs." },
+            { id: 25, title: "Crypto-monnaies : l'appel à une réglementation drastique", source: "BFM Business", lang: "FR", bias: "Droite", category: "Tech", score: 84, url: "https://www.bfmtv.com/economie", summary: "Suite à de nouvelles faillites de plateformes d'échange offshore, les régulateurs financiers européens et les banques centrales demandent l'intégration immédiate des actifs numériques dans le giron réglementaire traditionnel. L'objectif affiché est de protéger l'épargne publique contre la spéculation sauvage et d'empêcher l'utilisation des cryptos à des fins de blanchiment d'argent à grande échelle." },
+            { id: 26, title: "The rise of worker-owned cooperatives post-pandemic", source: "The New Yorker", lang: "EN", bias: "Gauche", category: "Économie", score: 90, url: "https://www.newyorker.com", summary: "An inspiring long-form feature explores the economic resilience of democratic workplaces where employees hold equal shares and corporate voting power. Data indicates that these worker-owned cooperatives have maintained higher job retention and emotional well-being scores during recent economic downturns, offering a human-centric alternative to rigid, shareholder-driven corporations." },
+            { id: 27, title: "Nucléaire : la relance de la filière obtient un large consensus", source: "Europe 1", lang: "FR", bias: "Centre", category: "Environnement", score: 71, url: "https://www.europe1.fr", summary: "La prise de conscience collective de la nécessité d'une électricité décarbonée et souveraine pousse le parlement à voter un plan massif de construction de nouveaux réacteurs nucléaires. Cette décision réaliste valide une stratégie de transition énergétique à long terme où l'atome sert de socle stable et pilotable pour pallier l'intermittence des énergies renouvelables comme l'éolien ou le solaire." },
+            { id: 28, title: "Border Security: Drone surveillance funding doubled", source: "New York Post", lang: "EN", bias: "Droite", category: "Politique", score: 93, url: "https://nypost.com", summary: "A substantial federal budget expansion allocates record funds to reinforce border control with advanced AI-driven drone surveillance and real-time thermal tracking networks. Law enforcement agencies state this high-tech modernization is vital to dismantle human-trafficking cartels and restore strict, lawful sovereignty over compromised transit sectors." },
+            { id: 29, title: "Logement social : l'abandon de l'État dénoncé par la Fondation Abbé Pierre", source: "Politis", lang: "FR", bias: "Gauche", category: "Société", score: 94, url: "https://www.politis.fr", summary: "Le dernier rapport annuel dresse un réquisitoire implacable contre la baisse continue des aides publiques à la construction de logements sociaux. En gelant les budgets HLM, l'État condamne des millions de familles modestes à l'insalubrité ou au mal-logement énergétique. Les militants réclament un plan d'urgence national financé par une taxe lourde sur la plus-value immobilière de luxe." },
+            { id: 30, title: "Tech Monopolies: Senate proposes balanced antitrust review", source: "Reuters", lang: "EN", bias: "Centre", category: "Tech", score: 75, url: "https://www.reuters.com", summary: "A bipartisan senate commission has presented a balanced framework aiming to reform market laws for digital conglomerates. The goal is to update competition guidelines to prevent unfair algorithmic suppression of smaller corporate competitors. Crucially, the text avoids radical structural breakups, opting instead for heavy fines and mandated code interoperability." },
+            { id: 31, title: "Souveraineté agricole : produire plus en protégeant nos agriculteurs", source: "Le Chasseur Français", lang: "FR", bias: "Droite", category: "Environnement", score: 89, url: "https://www.lechasseurfrancais.com", summary: "Face à l'accumulation de normes environnementales jugées punitives et déconnectées des réalités du terrain, l'article plaide pour un patriotisme alimentaire fort. Il est urgent d'alléger les contraintes sur l'usage des produits phytosanitaires lorsque aucune alternative technique n'existe, afin d'éviter la faillite de nos exploitations et de dépendre d'importations étrangères hors-normes." },
+            { id: 32, title: "Fast-fashion restrictions: Parliament debates environmental tax", source: "The Independent", lang: "EN", bias: "Gauche", category: "Environnement", score: 86, url: "https://www.independent.co.uk", summary: "Lawmakers are discussing an aggressive environmental penalization framework targeted at ultra-fast-fashion e-commerce platforms. The proposed law introduces a per-item ecological tax to counter massive overproduction, microplastic pollution, and toxic textile dyeing practices. The collected funds would be directly funneled into local organic textile recycling programs." },
+            { id: 33, title: "Télétravail : les entreprises cherchent le juste équilibre", source: "Capital", lang: "FR", bias: "Centre", category: "Économie", score: 77, url: "https://www.capital.fr", summary: "Après l'euphorie du distanciel complet puis la tentation d'un retour forcé au bureau, le modèle hybride stabilisé à 2 ou 3 jours par semaine s'impose comme le compromis optimal. Cette organisation préserve le bien-être des salariés et réduit l'empreinte immobilière des entreprises, tout en maintenant la cohésion d'équipe et la culture corporate indispensables à l'innovation." },
+            { id: 34, title: "National Identity: Cultural curriculum reforms introduced", source: "The Daily Mail", lang: "EN", bias: "Droite", category: "Société", score: 96, url: "https://www.dailymail.co.uk", summary: "The Ministry of Education has unveiled a sweeping overhaul of the public history and literature curriculum. The new guidelines re-center learning on national heritage, historical victories, and traditional civic values. Proponents state this reform is crucial to build social cohesion, strengthen civic pride, and counter the divisive influence of imported cultural theories." },
+            { id: 35, title: "Fraude fiscale : les banques suisses à nouveau dans le collimateur", source: "L'Obs", lang: "FR", bias: "Gauche", category: "Économie", score: 92, url: "https://www.nouvelobs.com", summary: "Une fuite massive de données bancaires confidentielles révèle que des mécanismes sophistiqués d'évasion fiscale continuent de dissimuler des milliards d'euros appartenant à des multinationales et à des oligarques. L'article réclame la mise en place de sanctions pénales directes contre les institutions financières complices et la levée totale et définitive du secret bancaire international." },
+            { id: 36, title: "Space Exploration: Public-private partnerships hitting milestones", source: "TechCrunch", lang: "EN", bias: "Centre", category: "Tech", score: 79, url: "https://techcrunch.com", summary: "The latest lunar cargo deployment demonstrates the efficiency of combining NASA's safety standards with the engineering agility of private aerospace startups. By utilizing cost-effective commercial rockets, public programs save billions in taxpayer money, allowing institutional researchers to focus exclusively on high-value scientific instruments and long-duration habitats." },
+            { id: 37, title: "Dette publique : la sonnette d'alarme tirée par la Cour des Comptes", source: "Le Journal du Dimanche", lang: "FR", bias: "Droite", category: "Économie", score: 90, url: "https://www.lejdd.fr", summary: "Dans son dernier rapport annuel, l'institution financière dénonce la dérive continue des finances de l'État et appelle à un plan de réduction drastique des dépenses publiques. Les magistrats avertissent que le remboursement des intérêts de la dette risque de devenir le premier poste budgétaire du pays, étouffant toute possibilité d'investissement d'avenir et menaçant notre souveraineté nationale." },
+            { id: 38, title: "Indigenous Land Rights: Historic treaty signed in Vancouver", source: "CBC", lang: "EN", bias: "Gauche", category: "Politique", score: 91, url: "https://www.cbc.ca", summary: "Following a decade of tense legal negotiations, a historic treaty returns sovereign environmental guardianship of over two million hectares of old-growth forest to First Nations authorities. The agreement establishes a collaborative, indigenous-led resource management framework that effectively bans aggressive open-pit mining while ensuring sustainable local tourism development." },
+            { id: 39, title: "Réforme de la santé : fusion des régimes pour plus d'efficacité", source: "La Croix", lang: "FR", bias: "Centre", category: "Société", score: 74, url: "https://www.lacroix.com", summary: "Le projet de loi de simplification administrative prévoit de fusionner les multiples régimes d'assurance maladie complémentaires sous un guichet unique coordonné. Cette restructuration modérée vise à réduire les coûts de gestion internes et à clarifier le parcours de soins pour le patient, tout en maintenant la participation historique des organismes mutuels d'intérêt général." },
+            { id: 40, title: "Welfare Reform: Stricter criteria for unemployment benefits", source: "The Sun", lang: "EN", bias: "Droite", category: "Société", score: 94, url: "https://www.thesun.co.uk", summary: "The government has finalized a controversial welfare bill that slashes unemployment payouts for individuals who refuse more than two legitimate job offers within their district. Ministers argue this firm measure is vital to combat chronic labor shortages in retail and hospitality sectors, ensuring the social safety net only supports those actively seeking work." },
+            { id: 41, title: "Transports gratuits : l'exemple de Montpellier séduit l'Europe", source: "Reporterre", lang: "FR", bias: "Gauche", category: "Environnement", score: 88, url: "https://reporterre.net", summary: "Le bilan de la gratuité totale des transports en commun mise en place dans la métropole montre une baisse spectaculaire du trafic automobile individuel et une augmentation de la mixité sociale dans les bus et tramways. L'article démontre que le financement de cette mesure par un léger versement mobilité des grandes entreprises est un choix politique juste et écologiquement rentable." },
+            { id: 42, title: "Electric Vehicles: Infrastructure growth steady but slow", source: "Automotive News", lang: "EN", bias: "Centre", category: "Tech", score: 73, url: "https://www.autonews.com", summary: "The deployment of fast-charging automotive stations is growing at a regular, market-driven pace, avoiding the risk of massive public over-investment. A coordinated public-private financing model ensures grids are reinforced precisely where high-density commercial traffic requires it, matching the organic consumer adoption curve of next-generation electric sedans." },
+            { id: 43, title: "Guerre commerciale : l'Europe doit durcir le ton face à la Chine", source: "Valeurs Actuelles", lang: "FR", bias: "Droite", category: "Politique", score: 92, url: "https://www.valeursactuelles.com", summary: "L'invasion massive du marché européen par des véhicules électriques asiatiques massivement subventionnés met en péril l'avenir de notre fleuron industriel automobile. L'éditorial appelle d'urgence à l'instauration de barrières douanières strictes et de critères d'éco-conditionnalité patriotiques pour protéger nos usines, nos ingénieurs et nos millions d'emplois face à cette concurrence déloyale." },
+            { id: 44, title: "The Gig Economy: Court rules food delivery drivers are employees", source: "The Irish Times", lang: "EN", bias: "Gauche", category: "Économie", score: 89, url: "https://www.irishtimes.com", summary: "In a definitive Supreme Court judgment, digital delivery applications have been ordered to reclassify thousands of gig-workers as full employees. The court ruled that algorithmic control over delivery routes and fee pricing models constitutes a clear subordination link, forcing tech platforms to immediately integrate comprehensive healthcare benefits and paid parental leave." },
+            { id: 45, title: "Recherche Médicale : de nouveaux fonds pour le traitement du cancer", source: "Sciences et Avenir", lang: "FR", bias: "Centre", category: "Tech", score: 80, url: "https://www.sciencesetavenir.fr", summary: "Un consortium regroupant des laboratoires universitaires publics et des fondations privées d'oncologie a annoncé l'obtention d'un financement majeur dédié aux thérapies cellulaires personnalisées. Cette approche collaborative permet d'accélérer significativement la phase d'essais cliniques sur l'humain tout en garantissant un futur encadrement des coûts des brevets médicaux." },
+            { id: 46, title: "School Choice: Voucher program expands options for parents", source: "The Washington Times", lang: "EN", bias: "Droite", category: "Société", score: 91, url: "https://www.washingtontimes.com", summary: "Conservative education reformers celebrate the state supreme court's victory expanding the educational voucher system. The program allows low-income families to redirect public per-pupil funding toward private and religious educational options of their choice. Advocates state this introduces healthy competition into the public school system, forcing it to upgrade standards." },
+            { id: 47, title: "Changement climatique : l'urgence d'une planification écologique globale", source: "Alternative Économiques", lang: "FR", bias: "Gauche", category: "Environnement", score: 93, url: "https://www.alternatives-economiques.fr", summary: "Face à l'inefficacité flagrante des mécanismes de marché et du capitalisme vert, l'auteur démontre l'absolue nécessité d'une planification écologique d'État stricte. Cela implique d'imposer des quotas de production, de rationner l'usage des ressources fossiles par les grandes entreprises et de nationaliser les secteurs stratégiques de l'énergie et des transports ferroviaires." },
+            { id: 48, title: "Aviation sector tax: A middle-ground solution reached", source: "Le Monde English", lang: "EN", bias: "Centre", category: "Environnement", score: 72, url: "https://www.lemonde.fr/en", summary: "International air transport authorities have validated a moderate environmental kerosene levy designed to fund sustainable aviation fuel (SAF) engineering research. The tax structure was carefully calculated to minimize severe financial shockwaves for long-haul commercial airlines, successfully creating a pragmatic ecological path that protects global airline connectivity." },
+            { id: 49, title: "Simplification administrative : le choc de simplification pour les PME", source: "L'Opinion", lang: "FR", bias: "Droite", category: "Économie", score: 88, url: "https://www.lopinion.fr", summary: "Le nouveau projet de loi d'allègement des formalités administratives prévoit de supprimer plus de cinquante formulaires d'évaluation obligatoires pour les petites et moyennes entreprises. Cette libération réglementaire vise à faire gagner des milliers d'heures de productivité aux entrepreneurs, redonnant de la compétitivité et de l'oxygène à ceux qui créent concrètement la richesse nationale." },
+            { id: 50, title: "Mental Health: Workplace stress declared national emergency", source: "The Huffington Post", lang: "EN", bias: "Gauche", category: "Société", score: 87, url: "https://www.huffpost.com", summary: "Following a comprehensive psychological study tracking office environments, a coalition of union representatives and medical experts has declared endemic workplace burnout a major public health crisis. They are drafting urgent legislation to enforce a strict 'right to disconnect', penalizing companies that monitor employee digital communication outside official hours." }
+        ];
+
+        let currentLangFilter = 'ALL';
+
+        // Initialisation au chargement
+        window.onload = () => {
+            filterArticles();
+        };
+
+        // Gestionnaire de filtre linguistique (Boutons)
+        function setLang(lang) {
+            currentLangFilter = lang;
+            
+            // Mise à jour visuelle des boutons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-gray-800', 'shadow-sm');
+                btn.classList.add('text-gray-600', 'hover:text-gray-900');
+            });
+
+            const activeBtn = document.getElementById(`lang-${lang}`);
+            activeBtn.classList.remove('text-gray-600', 'hover:text-gray-900');
+            activeBtn.classList.add('bg-white', 'text-gray-800', 'shadow-sm');
+
+            filterArticles();
+        }
+
+        // Logique principale de filtrage et d'affichage
+        function filterArticles() {
+            const biasFilterValue = document.getElementById('bias-filter').value;
+            const grid = document.getElementById('articles-grid');
+            
+            // Filtrage des données
+            const filtered = articlesDataset.filter(article => {
+                const matchLang = (currentLangFilter === 'ALL' || article.lang === currentLangFilter);
+                const matchBias = (biasFilterValue === 'ALL' || article.bias === biasFilterValue);
+                return matchLang && matchBias;
+            });
+
+            // Mise à jour des compteurs
+            document.getElementById('visible-count').innerText = filtered.length;
+
+            // Rendu HTML des cartes articles
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
+                        Aucun article ne correspond à ces critères de filtrage.
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(article => {
+                // Définition des couleurs de badge selon le biais politique
+                let biasBadgeColor = "";
+                if (article.bias === 'Gauche') biasBadgeColor = "bg-red-50 text-red-700 border-red-200";
+                else if (article.bias === 'Centre') biasBadgeColor = "bg-purple-50 text-purple-700 border-purple-200";
+                else if (article.bias === 'Droite') biasBadgeColor = "bg-blue-50 text-blue-700 border-blue-200";
+
+                return `
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 p-5 flex flex-col group">
+                        <div class="flex-grow">
+                            <!-- Métadonnées de l'article -->
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${biasBadgeColor} border">
+                                    Tendance : ${article.bias}
+                                </span>
+                                <div class="flex items-center gap-1.5 text-xs text-gray-400">
+                                    <span class="font-medium text-gray-600">${article.source}</span>
+                                    <span>•</span>
+                                    <span class="uppercase tracking-wider font-bold text-indigo-600">${article.lang}</span>
+                                </div>
+                            </div>
+
+                            <!-- Titre -->
+                            <h3 class="text-base font-bold text-gray-900 group-hover:text-indigo-900 transition-colors mb-3">
+                                ${article.title}
+                            </h3>
+
+                            <!-- Titre Résumé IA -->
+                            <div class="text-xs font-semibold text-indigo-950 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                <span>⚡ Décryptage Synthétique IA :</span>
+                            </div>
+
+                            <!-- Résumé Long -->
+                            <p class="text-sm text-gray-600 leading-relaxed mb-5">
+                                ${article.summary}
+                            </p>
+                        </div>
+
+                        <!-- Footer de la carte -->
+                        <div class="pt-4 border-t border-gray-100 flex flex-col gap-3 mt-auto">
+                            <div class="flex items-center justify-between">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                    ${article.category}
+                                </span>
+                                <div class="text-right">
+                                    <span class="text-xs text-gray-400">Fiabilité IA :</span>
+                                    <span class="text-sm font-bold text-emerald-600">${article.score}%</span>
+                                </div>
+                            </div>
+
+                            <!-- Bouton Lien vers l'article d'origine -->
+                            <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="w-full text-center inline-flex items-center justify-center gap-1 bg-gray-50 hover:bg-indigo-50 border border-gray-200 hover:border-indigo-200 text-xs font-semibold text-gray-700 hover:text-indigo-700 py-2 px-4 rounded-lg transition-all">
+                                Lire l'article original sur ${article.source}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

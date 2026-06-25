@@ -1,0 +1,54 @@
+# AgoraIA — L'actualité mondiale décryptée par l'IA
+
+[![EPSI](https://img.shields.io/badge/École-EPSI-blue.svg)](https://www.epsi.fr/)
+[![InnovMind](https://img.shields.io/badge/Challenge-InnovMind-indigo.svg)]()
+[![Tech](https://img.shields.io/badge/Stack-HTML5%20%7C%20TailwindCSS%20%7C%20JS-orange.svg)]()
+
+## 💡 À propos du projet
+
+**AgoraIA** est un prototype d'application web développé dans le cadre du module **InnovMind** de l'école **EPSI**. 
+
+L'objectif de ce projet est de proposer une solution technologique innovante répondant aux problématiques modernes de consommation de l'information : la surcharge informationnelle (*infobésité*) et l'évaluation de la neutralité des médias.
+
+L'application agrège des flux d'actualités internationaux multilingues et utilise une Intelligence Artificielle (simulée pour cette version de démonstration) afin de :
+1. **Générer des décryptages synthétiques profonds** et rapides pour chaque article.
+2. **Analyser et classifier le positionnement/biais politique** implicite des lignes éditoriales (Gauche, Centre, Droite).
+3. **Attribuer un score de fiabilité et de confiance** basé sur la cohérence des sources.
+
+---
+
+## 🎯 Fonctionnalités de la Démo
+
+Conçu spécifiquement pour une démonstration fluide et visuelle face à un jury, le prototype intègre :
+* 📦 **Un catalogue de 50 articles réalistes** couvrant plusieurs thématiques globales (Politique, Économie, Environnement, Tech, Société).
+* 🌐 **Un filtrage linguistique instantané** permettant de basculer entre des sources en Français (FR) et en Anglais (EN).
+* 📊 **Un filtrage par tendance politique** permettant de mettre en évidence la pluralité ou la polarisation de l'information sur un même sujet.
+* 🔗 **Une passerelle vers les médias d'origine** via des boutons d'action dynamiques intégrés à chaque fiche d'actualité.
+* 📈 **Un mini-tableau de bord** affichant la répartition statistique des articles analysés par l'IA.
+
+---
+
+## 🛠️ Stack Technique
+
+Afin de garantir une légèreté maximale, une compatibilité multi-support et un déploiement instantané sans friction (sans dépendance à un serveur pour la démo), la stack suivante a été choisie :
+* **HTML5 & Vanilla JavaScript (ES6+)** : Logique de filtrage dynamique et injection asynchrone des données en front-end.
+* **Tailwind CSS (via CDN)** : Pour un design moderne, épuré, responsive et professionnel.
+
+---
+
+## 🚀 Comment lancer la démo ?
+
+Aucune installation de paquets (`npm install`) ni aucun serveur local n'est requis.
+
+1. Téléchargez ou clonez le dépôt.
+2. Double-cliquez simplement sur le fichier `index.html` pour l'ouvrir dans n'importe quel navigateur moderne (Chrome, Firefox, Edge, Safari).
+3. Utilisez les filtres du header pour simuler l'expérience utilisateur en temps réel.
+
+---
+
+## 👥 Équipe Projet (EPSI - InnovMind)
+
+Projet réalisé avec passion par les étudiants de l'**EPSI** dans le cadre du parcours d'innovation **InnovMind**.
+
+---
+*Ce projet est une preuve de concept (PoC) à vocation pédagogique.*
